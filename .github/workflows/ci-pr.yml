@@ -75,7 +75,7 @@ jobs:
   test:
     name: '🧪 ${{ matrix.test.name }} [💻]'
     runs-on: macos-latest
-    needs: [prepare]
+    needs: [prepare, build]
     strategy:
         fail-fast: false
         matrix: 
@@ -90,7 +90,7 @@ jobs:
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Test Source Code
+      - name: ${{ matrix.test.name }}
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.test.fastlane.working_repo }}
