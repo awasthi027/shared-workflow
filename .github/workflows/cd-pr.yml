@@ -1,0 +1,74 @@
+name: CD PR  Shared Workflow
+
+on:
+  workflow_call:
+    inputs:
+      config_path:
+        description: 'Path for json config file'
+        required: true
+        type: string
+      repository:
+        description: 'The owner and repository name.'
+        required: false
+        type: string
+        default: ${{ github.repository }}
+      ref:
+        description: 'The fully-formed ref of the branch or tag that triggered the workflow run'
+        required: false
+        type: string
+        default: ${{ github.ref }}
+    outputs:
+      config:
+        description: 'Music Sheet Configuration'
+        value: ${{ inputs.config_path }}
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  prepare:
+     name: '🌱 Seed Workflow Config 🌱'
+     runs-on: macos-latest
+     outputs:
+      matrix: ${{ steps.readjson.outputs.config-content }}
+     steps:
+
+      - name: Checkout Project Repository
+        uses: actions/checkout@main
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Build Configuration
+        id: readjson
+        uses: awasthi027/validate-workflow-config-action@v1
+        with: 
+          config-path: ${{ inputs.config_path }}
+  publish:
+    name: '🚀 ${{ matrix.publish.name }} [🍎]'
+    runs-on: macos-latest
+    needs: [prepare]
+    strategy:
+        fail-fast: false
+        matrix: 
+          publish: ${{ fromJson(needs.prepare.outputs.matrix).publish }}
+          common: ${{ fromJson(needs.prepare.outputs.matrix).common }}
+
+    steps:
+      - name: Checkout Project Repository
+        uses: actions/checkout@main
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Source Code
+        uses: awasthi027/fastlane-action@v4
+        with:
+           working_repo: ${{ matrix.publish.fastlane.working_repo }}
+           fastlane_repo: ${{ matrix.publish.fastlane.fastlane_repo }}
+           lane_name: ${{ matrix.publish.fastlane.lane  }}
+           env_name: ${{ matrix.publish.fastlane.env  }}
+           gitPATToken: ${{ secrets.GITHUB_TOKEN }}
