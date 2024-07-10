@@ -63,7 +63,7 @@ jobs:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Run PreScript"
+      - name: "Setting global config"
         shell: bash
         run: |
           git config --global user.name awasthi027
