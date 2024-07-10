@@ -63,8 +63,8 @@ jobs:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Source Code
+          
+      - name: '🚀 ${{ matrix.publish.name }} [🍎]'
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.publish.fastlane.working_repo }}
