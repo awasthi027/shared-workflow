@@ -29,7 +29,7 @@ permissions:
 jobs:
   prepare:
      name: '🌱 Seed Workflow Config 🌱'
-     runs-on: macos-latest
+     runs-on: self-hosted
      outputs:
       matrix: ${{ steps.readjson.outputs.config-content }}
      steps:
@@ -48,7 +48,7 @@ jobs:
           config-path: ${{ inputs.config_path }}
   publish:
     name: '🚀 ${{ matrix.publish.name }} [🍎]'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.common.runs-on }}
     needs: [prepare]
     strategy:
         fail-fast: false
@@ -63,14 +63,9 @@ jobs:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Setting global config"
-        shell: bash
-        run: |
-          git config --global user.name awasthi027
-          git config --global user.password ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: '🚀 ${{ matrix.publish.name }} [🍎]'
-        uses: awasthi027/fastlane-action@v4
+        uses: awasthi027/fastlane-action@v6
         with:
            working_repo: ${{ matrix.publish.fastlane.working_repo }}
            fastlane_repo: ${{ matrix.publish.fastlane.fastlane_repo }}
