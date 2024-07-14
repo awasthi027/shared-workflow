@@ -29,7 +29,7 @@ permissions:
 jobs:
   prepare:
      name: '🌱 Seed Workflow Config 🌱'
-     runs-on: self-hosted
+     runs-on: macos-latest
      outputs:
       matrix: ${{ steps.readjson.outputs.config-content }}
      steps:
@@ -65,7 +65,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: '🚀 ${{ matrix.publish.name }} [🍎]'
-        uses: awasthi027/fastlane-action@v6
+        uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.publish.fastlane.working_repo }}
            fastlane_repo: ${{ matrix.publish.fastlane.fastlane_repo }}
