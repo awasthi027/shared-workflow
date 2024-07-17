@@ -65,6 +65,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: '🚀 ${{ matrix.publish.name }} [🍎]'
+        if: ${{ !matrix.publish.disabled }}
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.publish.fastlane.working_repo }}

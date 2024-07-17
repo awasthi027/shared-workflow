@@ -64,6 +64,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Source Code
+        if: ${{ !matrix.build.disabled }}
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.build.fastlane.working_repo }}
@@ -91,6 +92,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: ${{ matrix.test.name }}
+        if: ${{ !matrix.test.disabled }}
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.test.fastlane.working_repo }}
