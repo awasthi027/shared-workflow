@@ -73,3 +73,10 @@ jobs:
            lane_name: ${{ matrix.publish.fastlane.lane  }}
            env_name: ${{ matrix.publish.fastlane.env  }}
            gitPATToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload XCFramewok on Artifact
+        if: ${{ matrix.publish.upload }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: XCFramework
+          path: ${{ matrix.publish.fastlane.frameworkPath }}
