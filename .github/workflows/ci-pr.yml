@@ -47,7 +47,7 @@ jobs:
           config-path: ${{ inputs.config_path }}
   build:
     name: '🔍 ${{ matrix.build.name }} [🍎]'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.build.runs-on }}
     needs: [prepare]
     strategy:
         fail-fast: false
