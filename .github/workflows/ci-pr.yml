@@ -81,7 +81,13 @@ jobs:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Run Pre-Script
+        if: ${{ !matrix.build.disabled && matrix.build.prescript != '' }}
+        shell: bash
+        run: |
+          echo "Running pre-script: ${{ matrix.build.prescript }}"
+          chmod +x "${{ matrix.build.prescript }}"
+          "${{ matrix.build.prescript }}"
       - name: Build Source Code
         if: ${{ !matrix.build.disabled }}
         uses: awasthi027/fastlane-action@v4
