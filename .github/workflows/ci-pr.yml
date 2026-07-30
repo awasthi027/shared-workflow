@@ -26,7 +26,7 @@ permissions:
   contents: read
 
 jobs:
-  info:
+  runnerinfo:
     name: 'Runner info'
     runs-on: macos-26
     steps:
@@ -47,6 +47,7 @@ jobs:
   prepare:
      name: '🌱 Seed Workflow Config 🌱'
      runs-on: macos-26
+     needs: [runnerinfo]
      outputs:
       matrix: ${{ steps.readjson.outputs.config-content }}
      steps:
