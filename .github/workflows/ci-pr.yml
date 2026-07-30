@@ -28,7 +28,7 @@ permissions:
 jobs:
   prepare:
      name: '🌱 Seed Workflow Config 🌱'
-     runs-on: macos-latest
+     runs-on: macos-26
      outputs:
       matrix: ${{ steps.readjson.outputs.config-content }}
      steps:
@@ -75,7 +75,7 @@ jobs:
 
   test:
     name: '🧪 ${{ matrix.test.name }} [💻]'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.build.runs-on }}
     needs: [prepare, build]
     strategy:
         fail-fast: false
