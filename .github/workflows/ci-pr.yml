@@ -100,12 +100,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Run Pre-Script
-        if: ${{ !matrix.build.disabled && matrix.build.prescript != '' }}
+        if: ${{ !matrix.test.disabled && matrix.test.prescript != '' }}
         shell: bash
         run: |
-          echo "Running pre-script: ${{ matrix.build.prescript }}"
-          chmod +x "${{ matrix.build.prescript }}"
-          "${{ matrix.build.prescript }}"
+          echo "Running pre-script: ${{ matrix.test.prescript }}"
+          chmod +x "${{ matrix.test.prescript }}"
+          "${{ matrix.test.prescript }}"
           
       - name: ${{ matrix.test.name }}
         if: ${{ !matrix.test.disabled }}
