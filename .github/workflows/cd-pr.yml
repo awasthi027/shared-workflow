@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "Running pre-script: ${{ matrix.publish.prescript }}"
           chmod +x "${{ matrix.publish.prescript }}"
-          "${{ matrix.build.prescript }}"
+          "${{ matrix.publish.prescript }}"
           
       - name: '🚀 ${{ matrix.publish.name }} [🍎]'
         if: ${{ !matrix.publish.disabled }}
