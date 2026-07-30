@@ -64,6 +64,14 @@ jobs:
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Run Pre-Script
+        if: ${{ !matrix.publish.disabled && matrix.publish.prescript != '' }}
+        shell: bash
+        run: |
+          echo "Running pre-script: ${{ matrix.publish.prescript }}"
+          chmod +x "${{ matrix.publish.prescript }}"
+          "${{ matrix.build.prescript }}"
+          
       - name: '🚀 ${{ matrix.publish.name }} [🍎]'
         if: ${{ !matrix.publish.disabled }}
         uses: awasthi027/fastlane-action@v4
