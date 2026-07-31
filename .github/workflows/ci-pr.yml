@@ -107,31 +107,33 @@ jobs:
           chmod +x "${{ matrix.test.prescript }}"
           "${{ matrix.test.prescript }}"
           
-      - name: ${{ matrix.test.name }}
-        id: run_tests
-        if: ${{ !matrix.test.disabled }}
-        continue-on-error: true          # let later steps run
-        uses: awasthi027/fastlane-action@v4
-        with:
-           working_repo: ${{ matrix.test.fastlane.working_repo }}
-           fastlane_repo: ${{ matrix.test.fastlane.fastlane_repo }}
-           lane_name: ${{ matrix.test.fastlane.lane }}
-           env_name: ${{ matrix.test.fastlane.env }}
-           gitPATToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Collect Test Results
+        if: ${{ always() && !matrix.test.disabled }}
+        shell: bash
+        run: |
+          DEST="$GITHUB_WORKSPACE/test-results/${{ matrix.test.name }}"
+          mkdir -p "$DEST"
+          # Copy .xcresult bundles produced by the test run from DerivedData
+          find "$HOME/Library/Developer/Xcode/DerivedData" \
+               -type d -name '*.xcresult' -exec cp -R {} "$DEST/" \; 2>/dev/null || true
+          # Also copy any fastlane scan output if the lane generated it
+          find "$GITHUB_WORKSPACE" -type d \( -iname 'test_output' -o -iname 'reports' \) \
+               -exec cp -R {} "$DEST/" \; 2>/dev/null || true
+          echo "Collected results in $DEST:"
+          ls -la "$DEST" || true
 
       - name: Upload Test Results
         if: ${{ always() && !matrix.test.disabled }}
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.test.name }}
-          path: |
-            **/test_output/**
-            **/build/reports/**
-          retention-days: 1
+          path: test-results/${{ matrix.test.name }}/**
+          retention-days: 14
           if-no-files-found: warn
 
       - name: Fail if tests failed
         if: ${{ steps.run_tests.outcome == 'failure' }}
         run: |
           echo "::error::Tests failed for ${{ matrix.test.name }}"
-          exit 1
+          exit 1          
+          
