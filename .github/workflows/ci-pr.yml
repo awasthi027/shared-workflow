@@ -108,11 +108,30 @@ jobs:
           "${{ matrix.test.prescript }}"
           
       - name: ${{ matrix.test.name }}
+        id: run_tests
         if: ${{ !matrix.test.disabled }}
+        continue-on-error: true          # let later steps run
         uses: awasthi027/fastlane-action@v4
         with:
            working_repo: ${{ matrix.test.fastlane.working_repo }}
            fastlane_repo: ${{ matrix.test.fastlane.fastlane_repo }}
-           lane_name: ${{ matrix.test.fastlane.lane  }}
-           env_name: ${{ matrix.test.fastlane.env  }}
+           lane_name: ${{ matrix.test.fastlane.lane }}
+           env_name: ${{ matrix.test.fastlane.env }}
            gitPATToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Test Results
+        if: ${{ always() && !matrix.test.disabled }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test.name }}
+          path: |
+            **/test_output/**
+            **/build/reports/**
+          retention-days: 1
+          if-no-files-found: warn
+
+      - name: Fail if tests failed
+        if: ${{ steps.run_tests.outcome == 'failure' }}
+        run: |
+          echo "::error::Tests failed for ${{ matrix.test.name }}"
+          exit 1
