@@ -107,6 +107,16 @@ jobs:
           chmod +x "${{ matrix.test.prescript }}"
           "${{ matrix.test.prescript }}"
           
+      - name: ${{ matrix.test.name }}
+        if: ${{ !matrix.test.disabled }}
+        uses: awasthi027/fastlane-action@v4
+        with:
+           working_repo: ${{ matrix.test.fastlane.working_repo }}
+           fastlane_repo: ${{ matrix.test.fastlane.fastlane_repo }}
+           lane_name: ${{ matrix.test.fastlane.lane  }}
+           env_name: ${{ matrix.test.fastlane.env  }}
+           gitPATToken: ${{ secrets.GITHUB_TOKEN }}          
+          
       - name: Collect Test Results
         if: ${{ always() && !matrix.test.disabled }}
         shell: bash
