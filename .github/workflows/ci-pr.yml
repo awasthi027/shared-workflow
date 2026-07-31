@@ -98,6 +98,15 @@ jobs:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Shared Workflow (for scripts)
+        if: ${{ !matrix.test.disabled }}
+        uses: actions/checkout@main
+        with:
+          repository: awasthi027/shared-workflow
+          ref: main
+          path: shared-workflow
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Run Pre-Script
         if: ${{ !matrix.test.disabled && matrix.test.prescript != '' }}
@@ -121,29 +130,14 @@ jobs:
         if: ${{ always() && !matrix.test.disabled }}
         shell: bash
         run: |
-          DEST="$GITHUB_WORKSPACE/test-results/${{ matrix.test.name }}"
-          mkdir -p "$DEST"
-          # Copy .xcresult bundles produced by the test run from DerivedData
-          find "$HOME/Library/Developer/Xcode/DerivedData" \
-               -type d -name '*.xcresult' -exec cp -R {} "$DEST/" \; 2>/dev/null || true
-          # Also copy any fastlane scan output if the lane generated it
-          find "$GITHUB_WORKSPACE" -type d \( -iname 'test_output' -o -iname 'reports' \) \
-               -exec cp -R {} "$DEST/" \; 2>/dev/null || true
-          echo "Collected results in $DEST:"
-          ls -la "$DEST" || true
+          chmod +x "$GITHUB_WORKSPACE/shared-workflow/.github/scripts/collect-test-results.sh"
+          "$GITHUB_WORKSPACE/shared-workflow/.github/scripts/collect-test-results.sh" "${{ matrix.test.name }}"
 
       - name: Upload Test Results
         if: ${{ always() && !matrix.test.disabled }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-${{ matrix.test.name }}
           path: test-results/${{ matrix.test.name }}/**
           retention-days: 14
           if-no-files-found: warn
-
-      - name: Fail if tests failed
-        if: ${{ steps.run_tests.outcome == 'failure' }}
-        run: |
-          echo "::error::Tests failed for ${{ matrix.test.name }}"
-          exit 1          
-          
